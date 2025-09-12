@@ -1,0 +1,86 @@
+# Sample GraphQL Queries and Mutations for Task Management API
+# Access the GraphQL Playground at: https://localhost:[port]/graphql
+
+# Query: Get all tasks
+query GetAllTasks {
+  allTasks {
+    id
+    title
+    description
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+# Query: Get task by ID
+query GetTaskById {
+  taskById(id: 1) {
+    id
+    title
+    description
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+# Query: Get tasks by status
+query GetTasksByStatus {
+  tasksByStatus(status: PENDING) {
+    id
+    title
+    description
+    status
+    createdAt
+  }
+}
+
+# Mutation: Create a new task
+mutation CreateTask {
+  createTask(input: {
+    title: "Complete GraphQL implementation"
+    description: "Implement GraphQL schema for task management"
+    status: PENDING
+  }) {
+    id
+    title
+    description
+    status
+    createdAt
+  }
+}
+
+# Mutation: Update task status
+mutation UpdateTaskStatus {
+  updateTaskStatus(input: {
+    id: 1
+    status: COMPLETED
+  }) {
+    id
+    title
+    status
+    updatedAt
+  }
+}
+
+# Mutation: Update entire task
+mutation UpdateTask {
+  updateTask(
+    id: 1
+    title: "Updated task title"
+    description: "Updated description"
+    status: IN_PROGRESS
+  ) {
+    id
+    title
+    description
+    status
+    updatedAt
+  }
+}
+
+# Mutation: Delete a task
+mutation DeleteTask {
+  deleteTask(id: 1)
+}

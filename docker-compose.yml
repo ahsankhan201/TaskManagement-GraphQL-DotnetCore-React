@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: taskmanagement-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=StrongPassword123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - taskmanagement-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongPassword123! -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # GraphQL API Backend
+  api:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: taskmanagement-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:7220
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=TaskManagementDb;User ID=sa;Password=StrongPassword123!;MultipleActiveResultSets=true;Trust Server Certificate=True;Encrypt=False;
+    ports:
+      - "7220:7220"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - taskmanagement-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7220/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # React Spectrum Todo Frontend
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: taskmanagement-frontend
+    environment:
+      - NODE_ENV=production
+      - VITE_GRAPHQL_URL=http://api:7220/graphql
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - taskmanagement-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  taskmanagement-network:
+    driver: bridge

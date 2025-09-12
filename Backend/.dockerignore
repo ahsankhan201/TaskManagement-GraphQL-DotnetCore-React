@@ -1,0 +1,36 @@
+# Ignore Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore build outputs
+bin/
+obj/
+out/
+
+# Ignore IDE and editor files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+temp/
+tmp/
+
+# Ignore documentation
+README.md
+*.md
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+
